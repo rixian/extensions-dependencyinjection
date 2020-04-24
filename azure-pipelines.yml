@@ -1,0 +1,22 @@
+trigger:
+  branches:
+    include:
+    - master
+    - 'validate/*'
+    - 'release/*'
+  paths:
+    exclude:
+    - doc/
+    - '*.md'
+    - .vscode/
+    - .github/
+
+variables:
+  TreatWarningsAsErrors: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  BuildConfiguration: Release
+  codecov_token: ac1c565f-bb85-4b33-9202-1d67cdabcf2f
+  NUGET_PACKAGES: $(Agent.TempDirectory)/.nuget/packages
+
+jobs:
+- template: azure-pipelines/build.yml
