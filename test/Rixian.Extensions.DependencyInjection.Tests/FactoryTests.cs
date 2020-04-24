@@ -139,16 +139,24 @@ public class FactoryTests
         string testName = Guid.NewGuid().ToString();
         string testValue = Guid.NewGuid().ToString();
         var serviceCollection = new ServiceCollection();
-        serviceCollection.AddFactory<DemoClientConfig, DemoClient>((svc, o) => new DemoClient(o))
+        serviceCollection
+            .AddSingleton<DemoClientFactory>()
+            .AddSingleton<IFactory<DemoClientConfig, DemoClient>, DemoClientFactory>(svc => svc.GetRequiredService<DemoClientFactory>())
+            .ConfigureFactory<DemoClientConfig, DemoClient>((svc, o) => new DemoClient(o))
             .Configure(testName, o => o.Value = testValue);
         IServiceProvider services = serviceCollection.BuildServiceProvider();
-        IFactory<DemoClientConfig, DemoClient> factory = services.GetRequiredService<IFactory<DemoClientConfig, DemoClient>>();
+        DemoClientFactory factory1 = services.GetRequiredService<DemoClientFactory>();
+        IFactory<DemoClientConfig, DemoClient> factory2 = services.GetRequiredService<IFactory<DemoClientConfig, DemoClient>>();
 
         // Act
-        Result<DemoClient> item = factory.GetItem(testName);
+        Result<DemoClient> item1 = factory1.GetItem(testName);
+        Result<DemoClient> item2 = factory2.GetItem(testName);
 
         // Assert
-        item.IsSuccess.Should().BeTrue();
-        item.Value.ConfigValue.Should().Be(testValue);
+        item1.IsSuccess.Should().BeTrue();
+        item1.Value.ConfigValue.Should().Be(testValue);
+
+        item2.IsSuccess.Should().BeTrue();
+        item2.Value.ConfigValue.Should().Be(testValue);
     }
 }
