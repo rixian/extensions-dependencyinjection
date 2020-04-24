@@ -1,12 +1,13 @@
 ﻿// Copyright (c) Rixian. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE file in the project root for full license information.
 
-namespace Rixian.Extensions.DependencyInjection
+namespace Microsoft.Extensions.DependencyInjection
 {
     using System;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.DependencyInjection.Extensions;
     using Microsoft.Extensions.Options;
+    using Rixian.Extensions.DependencyInjection;
     using Rixian.Extensions.Errors;
 
     /// <summary>
@@ -108,6 +109,51 @@ namespace Rixian.Extensions.DependencyInjection
         /// <param name="configureOptions">Method for configuring the named item options.</param>
         /// <returns>The updated IFactoryItemBuilder.</returns>
         public static IFactoryItemBuilder<TOption, TItem> Configure<TOption, TItem>(this IFactoryItemBuilder<TOption, TItem> builder, string name, Action<TOption> configureOptions)
+            where TOption : class
+        {
+            if (builder is null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            builder.Services.Configure<TOption>(name, configureOptions);
+            return builder;
+        }
+
+        /// <summary>
+        /// Configures a new item in the factory.
+        /// </summary>
+        /// <typeparam name="TOption">The type of options used.</typeparam>
+        /// <typeparam name="TItem">The type of item produced.</typeparam>
+        /// <typeparam name="TBuilder">The type of item builder.</typeparam>
+        /// <param name="builder">The IFactoryItemBuilder.</param>
+        /// <param name="configureOptions">Method for configuring the named item options.</param>
+        /// <returns>The updated IFactoryItemBuilder.</returns>
+        public static TBuilder Configure<TOption, TItem, TBuilder>(this TBuilder builder, Action<TOption> configureOptions)
+            where TBuilder : IFactoryItemBuilder<TOption, TItem>
+            where TOption : class
+        {
+            if (builder is null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            builder.Services.Configure<TOption>(configureOptions);
+            return builder;
+        }
+
+        /// <summary>
+        /// Configures a new item in the factory.
+        /// </summary>
+        /// <typeparam name="TOption">The type of options used.</typeparam>
+        /// <typeparam name="TItem">The type of item produced.</typeparam>
+        /// <typeparam name="TBuilder">The type of item builder.</typeparam>
+        /// <param name="builder">The IFactoryItemBuilder.</param>
+        /// <param name="name">The name of the item.</param>
+        /// <param name="configureOptions">Method for configuring the named item options.</param>
+        /// <returns>The updated IFactoryItemBuilder.</returns>
+        public static TBuilder Configure<TOption, TItem, TBuilder>(this TBuilder builder, string name, Action<TOption> configureOptions)
+            where TBuilder : IFactoryItemBuilder<TOption, TItem>
             where TOption : class
         {
             if (builder is null)
